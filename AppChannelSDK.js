@@ -47,6 +47,7 @@
     if (window.CocosChannel && window.CocosChannel.postMessage) {
       window.CocosChannel.postMessage(JSON.stringify(payload));
     } else {
+      console.log("当前不支持控制广告");
       console.warn(this.gameName + " CocosChannel [" + methodName + "] is not available.");
       if (actualCallback) actualCallback(null);
     }
