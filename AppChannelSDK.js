@@ -45,7 +45,7 @@
     };
 
     if("methodName"=="testLoadAppChannelSDK"){
-         console.log(gameName+"AppChannelSDK加载成功:");
+         console.log(gameName+"AppChannelSDK加载成功: 被cocos调用");
     }else{
         if (window.CocosChannel && window.CocosChannel.postMessage) {
       window.CocosChannel.postMessage(JSON.stringify(payload));
