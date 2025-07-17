@@ -1,0 +1,95 @@
+在cocos中定义一个加载函数:
+
+   private loadAndUseAppChannelSDK(gameName: string): Promise<void> {
+        const hostname = window.location.hostname.toLowerCase();
+        const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+        const isDebug = !!window["__DEBUG__"];
+
+        const useFetchLoad = isDebug || isLocalhost;
+        const sdkUrl = useFetchLoad
+            ? "https://raw.githubusercontent.com/hx-cocos/game-common-script/main/AppChannelSDK.js"
+            : `${window.location.origin}/web/static/common/AppChannelSDK.js`;
+
+        return new Promise<void>((resolve, reject) => {
+            if (window.AppChannelSDK) {
+                useSdk();
+                return;
+            }
+
+            if (useFetchLoad) {
+                // 使用 fetch + eval
+                fetch(sdkUrl)
+                    .then(async (res) => {
+
+                        if (!res.ok) {
+                            throw new Error(`Fetch 脚本失败: ${res.status}`);
+                        }
+                        const scriptText = await res.text();
+                        eval(scriptText);
+                        if (!window.AppChannelSDK) {
+                            throw new Error("AppChannelSDK 未定义");
+                        }
+                        useSdk();
+                    })
+                    .catch(reject);
+
+            } else {
+                // 使用 script 标签方式加载
+                if (document.getElementById("__app_channel_sdk_script__")) {
+                    if (!window.AppChannelSDK) {
+                        reject(new Error("AppChannelSDK 已加载但未定义"));
+                        return;
+                    }
+                    useSdk();
+                    return;
+                }
+
+                const script = document.createElement("script");
+                script.id = "__app_channel_sdk_script__";
+                script.src = sdkUrl;
+
+                script.onload = () => {
+                    if (!window.AppChannelSDK) {
+                        reject(new Error("AppChannelSDK 未定义"));
+                        return;
+                    }
+
+                };
+
+                script.onerror = () => {
+                    reject(new Error("加载 AppChannelSDK 脚本失败"));
+                };
+
+                document.head.appendChild(script);
+            }
+
+            function useSdk() {
+                try {
+                    const sdk = new window.AppChannelSDK(gameName);
+
+                    sdk.invokeFlutterMethod("testLoadAppChannelSDK", () => {
+                        resolve(); // ✅ 调用成功后 resolve
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            }
+        });
+    }
+
+
+加载sdk；
+
+       this.loadAndUseAppChannelSDK("激战突围").then(() => {
+            this.channelSDk = new window.AppChannelSDK("激战突围");
+        }).catch(err => {
+            console.error("加载失败", err);
+        });
+
+调用sdk的方法
+
+         if (this.channelSDk != null)
+            this.channelSDk.invokeFlutterMethod("reportEvent", {
+                "type": type,
+                "data": data
+            });
