@@ -45,13 +45,13 @@
     };
 
     if(methodName=="testLoadAppChannelSDK"){
-         console.log(this.gameName+"AppChannelSDK加载成功: 被cocos调用");
+         console.log("【"+this.gameName+"】 "+"AppChannelSDK加载成功: 被cocos调用");
     }else{
         if (window.CocosChannel && window.CocosChannel.postMessage) {
       window.CocosChannel.postMessage(JSON.stringify(payload));
     } else {
-    console.log(this.gameName+"AppChannelSDK未运行在Flutter环境中，无法执行 "+methodName+"方法");
-      console.warn(this.gameName + " CocosChannel [" + methodName + "] is not available.");
+    console.log("【"+this.gameName+"】 "+"AppChannelSDK未运行在Flutter环境中，无法执行 "+methodName+"方法");
+      
       if (actualCallback) actualCallback(null);
     }
     }
