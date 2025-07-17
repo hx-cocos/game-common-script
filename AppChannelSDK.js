@@ -44,13 +44,18 @@
       gameName: this.gameName
     };
 
-    if (window.CocosChannel && window.CocosChannel.postMessage) {
+    if("methodName"=="testLoadAppChannelSDK"){
+         console.log(gameName+"AppChannelSDK加载成功:");
+    }else{
+        if (window.CocosChannel && window.CocosChannel.postMessage) {
       window.CocosChannel.postMessage(JSON.stringify(payload));
     } else {
       console.log("当前不支持控制广告");
       console.warn(this.gameName + " CocosChannel [" + methodName + "] is not available.");
       if (actualCallback) actualCallback(null);
     }
+    }
+  
   };
 
   // 暴露为全局变量
