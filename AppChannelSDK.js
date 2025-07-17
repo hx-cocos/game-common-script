@@ -46,6 +46,7 @@
 
     if(methodName=="testLoadAppChannelSDK"){
          console.log("【"+this.gameName+"】 "+"AppChannelSDK加载成功: 被cocos调用");
+       if (actualCallback) actualCallback("ok"); // ✅ 立即回调
     }else{
         if (window.CocosChannel && window.CocosChannel.postMessage) {
       window.CocosChannel.postMessage(JSON.stringify(payload));
