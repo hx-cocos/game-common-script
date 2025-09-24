@@ -1,65 +1,81 @@
-(function (global) {
-  function AppChannelSDK(gameName) {
-    this.gameName = gameName;
-    this.callbackMap = {};
-    this.bindFlutterCallback();
-  }
+export default class AppChannelSDK {
 
-  AppChannelSDK.prototype.generateId = function () {
-    return Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-  };
 
-  AppChannelSDK.prototype.bindFlutterCallback = function () {
-    var self = this;
-    window.onFlutterCallback = function (callbackId, result) {
-      var cb = self.callbackMap[callbackId];
-      if (cb) {
-        cb(result);
-        delete self.callbackMap[callbackId];
-      }
-    };
-  };
+    // 游戏标识
+    public readonly gameName: string;
 
-  AppChannelSDK.prototype.invokeFlutterMethod = function (methodName, dataOrCallback, callback) {
-    var data = {};
-    var actualCallback;
+    // 存储回调
+    protected callbackMap: { [key: string]: (data: any) => void } = {};
 
-    if (typeof dataOrCallback === 'function') {
-      actualCallback = dataOrCallback;
-    } else if (dataOrCallback !== undefined) {
-      data = dataOrCallback;
-      actualCallback = callback;
+    // 生成唯一ID
+    protected generateId(): string {
+        return `${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    }
+    constructor(ganmeName: string) {
+        this.gameName = ganmeName;
+        this.bindFlutterCallback();
     }
 
-    var callbackId = actualCallback ? this.generateId() : null;
 
-    if (callbackId && actualCallback) {
-      this.callbackMap[callbackId] = actualCallback;
+
+    // 绑定供 Flutter 调用的回调函数
+    protected bindFlutterCallback() {
+        (window as any).onFlutterCallback = (callbackId: string, result: any) => {
+            const cb = this.callbackMap[callbackId];
+            if (cb) {
+                cb(result);
+                delete this.callbackMap[callbackId];
+            }
+        };
     }
 
-    var payload = {
-      method: methodName,
-      data: data,
-      callbackId: callbackId,
-      gameName: this.gameName
-    };
+    /**
+     * 调用 Flutter 方法
+     *
+     * 调用形式支持：
+     * - invokeFlutterMethod("method")
+     * - invokeFlutterMethod("method", callback)
+     * - invokeFlutterMethod("method", data)
+     * - invokeFlutterMethod("method", data, callback)
+     */
+    public invokeFlutterMethod(methodName: string): void;
+    public invokeFlutterMethod(methodName: string, callback: (result: any) => void): void;
+    public invokeFlutterMethod(methodName: string, data: any): void;
+    public invokeFlutterMethod(methodName: string, data: any, callback: (result: any) => void): void;
+    public invokeFlutterMethod(
+        methodName: string,
+        dataOrCallback?: any | ((result: any) => void),
+        callback?: (result: any) => void
+    ): void {
+        let data: any = {};
+        let actualCallback: ((result: any) => void) | undefined;
 
-    if(methodName=="testLoadAppChannelSDK"){
-         console.log("【"+this.gameName+"】 "+"AppChannelSDK加载成功: 被cocos调用");
-         if (actualCallback) actualCallback("ok"); // ✅ 立即回调
-    }else{
-        if (window.CocosChannel && window.CocosChannel.postMessage) {
-      window.CocosChannel.postMessage(JSON.stringify(payload));
-    } else {
-    console.log("【"+this.gameName+"】 "+"AppChannelSDK未运行在Flutter环境中，无法执行 "+methodName+"方法");
-      
-      if (actualCallback) actualCallback(null);
+        if (typeof dataOrCallback === "function") {
+            actualCallback = dataOrCallback;
+        } else if (dataOrCallback !== undefined) {
+            data = dataOrCallback;
+            actualCallback = callback;
+        }
+
+        const callbackId = actualCallback ? this.generateId() : null;
+
+        if (callbackId && actualCallback) {
+            this.callbackMap[callbackId] = actualCallback;
+        }
+
+        const payload = {
+            method: methodName,
+            data,
+            callbackId,
+            gameName:this.gameName
+
+        };
+
+        if ((window as any).CocosChannel?.postMessage) {
+            (window as any).CocosChannel.postMessage(JSON.stringify(payload));
+        } else {
+          console.warn(this.gameName + " CocosChannel   ["+methodName+"] is not available.");
+            if (actualCallback) actualCallback(null);
+        }
     }
-    }
-  
-  };
-
-  // 暴露为全局变量
-  global.AppChannelSDK = AppChannelSDK;
-
-})(window);
+}
