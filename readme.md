@@ -1,5 +1,7 @@
 定义加载函数：
 
+
+
   private loadAndUseAppChannelSDK(gameName: string): Promise<any> {
     // ✅ 如果已经有 Promise，就直接复用
     if (this.channelSdkPromise) {
