@@ -2,12 +2,12 @@
 
 
 
-  private loadAndUseAppChannelSDK(gameName: string): Promise<any> {
+ 
+     private loadAndUseAppChannelSDK(gameName: string): Promise<any> {
     // ✅ 如果已经有 Promise，就直接复用
     if (this.channelSdkPromise) {
         return this.channelSdkPromise;
     }
-
     const hostname = window.location.hostname.toLowerCase();
     const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
     const isDebug = !!window["__DEBUG__"];
