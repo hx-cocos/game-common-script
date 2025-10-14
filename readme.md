@@ -72,8 +72,7 @@
         }
     });
 
-    return this.channelSdkPromise;
-   }
+    return this.channelSdkPromise;}
 
 全局变量定义sdk的常量：
 
