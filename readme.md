@@ -145,6 +145,12 @@ sdk通信：
             if (this.channelSDk != null)
             this.channelSDk.invokeFlutterMethod("hideBanner")
 
+        ///退出游戏
+             if (this.channelSDk != null)
+            this.channelSDk.invokeFlutterMethod("exitGame", (result) => {
+
+            })
+
 
         ///显示激励视频
 
