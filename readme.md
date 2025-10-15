@@ -1,3 +1,7 @@
+2.4.13版本禁用自动全屏
+
+    cc.view.enableAutoFullScreen(false);
+
 定义加载函数：
 
 
